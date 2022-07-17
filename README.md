@@ -4,10 +4,16 @@ Simple python downloader for pixl.is albums. Project inspired from [pixl-mass-do
 ## Installation
 
 ```bash
-# create virtualenv if necessary
-$ virualenv env
+# use bash it don't work well with fish.
+$ bash
+# copy project file to your computer
+$ git clone https://github.com/dix0nym/pixl-downloader.git
+# got to the project folder
+$ cd pixl-downloader
+# create virtualenv if necessary (if you don't have it : sudo apt install python3-virtualenv )
+$ virtualenv env
 # activiate environment
-$ source env/Scripts/activate
+$ source env/bin/activate
 # install needed packages
 $ pip install requests bs4
 # or using requirements.txt
