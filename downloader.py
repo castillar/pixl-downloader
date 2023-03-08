@@ -4,12 +4,15 @@ from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup as bs
-from pkg_resources import require
 
 
-def get_model_name(url):
-    modelname = url.split('/')[4].split('.')[0]
-    return modelname if modelname else None
+def get_album_name(url):
+    if '/' not in url:
+        return None
+    tmp = url.split('/')[-1]
+    if '.' not in tmp or len(tmp) != 2:
+        return None
+    return tmp.split('.')[0]
 
 def get_next_page(soup):
     links = soup.findAll(attrs={"data-pagination": "next"})
@@ -39,20 +42,16 @@ def download_images(download_dir, urls):
             f.write(response.content)
         time.sleep(0.5)
 
-def main():
-    parser = argparse.ArgumentParser(description='downloader for pixl')
-    parser.add_argument('-d', '--destination', type=str, help='destination to store images', required=False, default="./downloads/")
-    parser.add_argument('url', metavar='URL', type=str, help='album url to download images')
-    args = parser.parse_args()
-    download_dir = Path(args.destination)
-    url = args.url
-
-    modelname = get_model_name(url)
-    if modelname:
-        download_dir = Path.joinpath(download_dir, modelname)
+def prepare_output_directory(url, destination):
+    album_name = get_album_name(url)
+    if album_name:
+        output_dir = Path.joinpath(destination, album_name)
     else:
-        download_dir = Path.joinpath(download_dir, f"pixl-download-{int(time.time())}")
-    download_dir.mkdir(parents=True, exist_ok=True)
+        output_dir = Path.joinpath(destination, f"pixl-download-{int(time.time())}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
+
+def start_crawling(url, download_dir):
     while url:
         response = requests.get(url)
         if response.status_code != 200:
@@ -63,8 +62,23 @@ def main():
         print(f'[+] found {len(urls)} images on current page')
         download_images(download_dir, urls)
         next_page = get_next_page(soup)
-        print(f'[+] found new page url: {next_page}')
+        if next_page:
+            print(f'[+] found new page url: {next_page}')
+        else:
+            print(f'[!] no new page => finished downloading!')
         url = next_page
+
+def main():
+    parser = argparse.ArgumentParser(description='downloader for pixl')
+    parser.add_argument('-d', '--destination', type=str, help='destination to store images', required=False, default="./downloads/")
+    parser.add_argument('url', metavar='URL', type=str, help='album url to download images')
+    args = parser.parse_args()
+    destination = Path(args.destination)
+    url = args.url
+
+    output_dir = prepare_output_directory(url, destination)
+    start_crawling(url, output_dir)
+
 
 if __name__ == '__main__':
     main()
