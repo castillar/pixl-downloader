@@ -4,18 +4,12 @@ Simple python downloader for pixl.is albums. Project inspired from [pixl-mass-do
 ## Installation
 
 ```bash
-# use bash it don't work well with fish.
-$ bash
 # copy project file to your computer
 $ git clone https://github.com/dix0nym/pixl-downloader.git
 # got to the project folder
 $ cd pixl-downloader
 # create virtualenv if necessary (if you don't have it : sudo apt install python3-virtualenv )
-$ virtualenv env
-# activiate environment
-$ source env/bin/activate
-# install needed packages
-$ pip install requests bs4
+$ virtualenv env && source env/bin/activate
 # or using requirements.txt
 $ pip install -r requirements.txt
 ```
@@ -24,7 +18,7 @@ $ pip install -r requirements.txt
 
 ```bash
 $ python downloader.py -h
-usage: downloader.py [-h] [-d DESTINATION] URL
+usage: downloader.py [-h] [-d DESTINATION] [-r] URL
 
 downloader for pixl
 
@@ -35,6 +29,7 @@ options:
   -h, --help            show this help message and exit
   -d DESTINATION, --destination DESTINATION
                         destination to store images
+  -r                    overwrite existing images (vs. skipping already-downloaded images)
 ```
 
 example call: `$ python downloader.py -d /media/storage/pixl-downloads/ https://pixl.is/album/XXXXXX`
