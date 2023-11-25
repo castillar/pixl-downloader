@@ -34,7 +34,7 @@ def download_images(download_dir, urls, overwrite):
     while urls:
         url = urls.pop()
         print(f"\t[+] downloading url: {url}")
-        filename = f"{url.split('/').pop()}.jpg"
+        filename = f"{url.split('/').pop()}"
         path = Path.joinpath(download_dir, filename)
         response = requests.get(url)
         if response.status_code != 200:
