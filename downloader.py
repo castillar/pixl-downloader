@@ -30,7 +30,7 @@ def get_urls(soup):
     return urls
 
 
-def download_images(download_dir, urls):
+def download_images(download_dir, urls, overwrite):
     while urls:
         url = urls.pop()
         print(f"\t[+] downloading url: {url}")
@@ -41,6 +41,10 @@ def download_images(download_dir, urls):
             print(f"\t[!] failed to download url - retrying in 5s")
             time.sleep(5)
             continue
+        if not overwrite:
+            if path.exists:
+                print(f"Skipping {path} as already downloaded...")
+                continue
         with path.open('wb') as f:
             f.write(response.content)
         time.sleep(0.5)
@@ -56,7 +60,7 @@ def prepare_output_directory(url, destination):
     return output_dir
 
 
-def start_crawling(url, download_dir):
+def start_crawling(url, download_dir, overwrite):
     while url:
         response = requests.get(url)
         if response.status_code != 200:
@@ -65,7 +69,7 @@ def start_crawling(url, download_dir):
         soup = bs(response.text, 'html.parser')
         urls = get_urls(soup)
         print(f'[+] found {len(urls)} images on current page')
-        download_images(download_dir, urls)
+        download_images(download_dir, urls, overwrite)
         next_page = get_next_page(soup)
         if next_page:
             print(f'[+] found new page url: {next_page}')
@@ -78,9 +82,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='downloader for pixl')
     parser.add_argument('-d', '--destination', type=str, help='destination to store images', required=False, default="./downloads/")
     parser.add_argument('url', metavar='URL', type=str, help='album url to download images')
+    parser.add_argument('-r', '--overwrite', type=bool, help='overwrite existing images', required=False, default=False)
     args = parser.parse_args()
     destination = Path(args.destination)
     url = args.url
+    overwrite = args.overwrite
 
     output_dir = prepare_output_directory(url, destination)
-    start_crawling(url, output_dir)
+    start_crawling(url, output_dir, overwrite)
