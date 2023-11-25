@@ -14,11 +14,13 @@ def get_album_name(url):
         return None
     return tmp.split('.')[0]
 
+
 def get_next_page(soup):
     links = soup.findAll(attrs={"data-pagination": "next"})
     if links and links[0].has_attr('href'):
         return links[0].attrs['href']
     return None
+
 
 def get_urls(soup):
     img_container = soup.select('a.image-container')
@@ -26,6 +28,7 @@ def get_urls(soup):
     transformUrl = lambda url: url.replace('.md', '')
     urls = list(map(transformUrl, thumb_urls))
     return urls
+
 
 def download_images(download_dir, urls):
     while urls:
@@ -42,6 +45,7 @@ def download_images(download_dir, urls):
             f.write(response.content)
         time.sleep(0.5)
 
+
 def prepare_output_directory(url, destination):
     album_name = get_album_name(url)
     if album_name:
@@ -50,6 +54,7 @@ def prepare_output_directory(url, destination):
         output_dir = Path.joinpath(destination, f"pixl-download-{int(time.time())}")
     output_dir.mkdir(parents=True, exist_ok=True)
     return output_dir
+
 
 def start_crawling(url, download_dir):
     while url:
@@ -68,7 +73,8 @@ def start_crawling(url, download_dir):
             print(f'[!] no new page => finished downloading!')
         url = next_page
 
-def main():
+
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='downloader for pixl')
     parser.add_argument('-d', '--destination', type=str, help='destination to store images', required=False, default="./downloads/")
     parser.add_argument('url', metavar='URL', type=str, help='album url to download images')
@@ -78,7 +84,3 @@ def main():
 
     output_dir = prepare_output_directory(url, destination)
     start_crawling(url, output_dir)
-
-
-if __name__ == '__main__':
-    main()
